@@ -63,6 +63,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 500.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM 250.0
+    #define DEFAULT_A_MAX_RATE 500.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (10.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 200.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_SHERLINE_5400
@@ -105,6 +112,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 635.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM (STEPS_PER_REV*MICROSTEPS/MM_PER_REV)
+    #define DEFAULT_A_MAX_RATE 635.0 // mm/min (25 ipm)
+    #define DEFAULT_A_ACCELERATION (50.0*60*60) // 50*60*60 mm/min^2 = 50 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 225.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_POCKETNC_FR4
@@ -143,6 +157,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 300.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 3.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM 800.0
+    #define DEFAULT_A_MAX_RATE 300.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (30.0*60*60) // 15*60*60 mm/min^2 = 15 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 225.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_SHAPEOKO
@@ -188,6 +209,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 250.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM (MICROSTEPS_XY*STEP_REVS_XY/MM_PER_REV_XY)
+    #define DEFAULT_A_MAX_RATE 1000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (15.0*60*60) // 15*60*60 mm/min^2 = 15 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 200.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_SHAPEOKO_2
@@ -233,6 +261,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 250.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM (MICROSTEPS_XY*STEP_REVS_XY/MM_PER_REV_XY)
+    #define DEFAULT_A_MAX_RATE 5000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (250.0*60*60) // 25*60*60 mm/min^2 = 25 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 290.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_SHAPEOKO_3
@@ -277,6 +312,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 1000.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 25 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 5.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM (MICROSTEPS_XY*STEP_REVS_XY/MM_PER_REV_XY)
+    #define DEFAULT_A_MAX_RATE 5000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (400.0*60*60) // 400*60*60 mm/min^2 = 400 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 425.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_X_CARVE_500MM
@@ -322,6 +364,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 750.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM (MICROSTEPS_XY*STEP_REVS_XY/MM_PER_REV_XY)
+    #define DEFAULT_A_MAX_RATE 8000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (500.0*60*60) // 25*60*60 mm/min^2 = 25 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 290.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_X_CARVE_1000MM
@@ -367,6 +416,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 750.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM (MICROSTEPS_XY*STEP_REVS_XY/MM_PER_REV_XY)
+    #define DEFAULT_A_MAX_RATE 8000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (500.0*60*60) // 25*60*60 mm/min^2 = 25 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 740.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_BOBSCNC_E3
@@ -406,6 +462,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 4000.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 5.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM 80.0
+    #define DEFAULT_A_MAX_RATE 10000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (500.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 450.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_BOBSCNC_E4
@@ -445,6 +508,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 4000.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 5.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM 80.0
+    #define DEFAULT_A_MAX_RATE 10000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (500.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 610.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_ZEN_TOOLWORKS_7x7
@@ -488,6 +558,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 250.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM (STEPS_PER_REV*MICROSTEPS/MM_PER_REV)
+    #define DEFAULT_A_MAX_RATE 6000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (600.0*60*60) // 600*60*60 mm/min^2 = 600 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 190.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_OXCNC
@@ -527,6 +604,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 500.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM 26.670
+    #define DEFAULT_A_MAX_RATE 500.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (10.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 500.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #ifdef DEFAULTS_SIMULATOR
@@ -566,6 +650,13 @@
   #define DEFAULT_HOMING_SEEK_RATE 500.0 // mm/min
   #define DEFAULT_HOMING_DEBOUNCE_DELAY 250 // msec (0-65k)
   #define DEFAULT_HOMING_PULLOFF 1.0 // mm
+
+  #ifdef ENABLE_A_AXIS
+    #define DEFAULT_A_STEPS_PER_MM 1000.0
+    #define DEFAULT_A_MAX_RATE 1000.0 // mm/min
+    #define DEFAULT_A_ACCELERATION (100.0*60*60) // 10*60*60 mm/min^2 = 10 mm/sec^2
+    #define DEFAULT_A_MAX_TRAVEL 1000.0 // mm NOTE: Must be a positive value.
+  #endif
 #endif
 
 #endif

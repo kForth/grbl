@@ -112,6 +112,9 @@
 #endif
 
 #if defined(ENABLE_DUAL_AXIS)
+  #ifdef ENABLE_A_AXIS
+    #error "Cannot have Dual Axis and A Axis enabled together."
+  #endif
   #if !((DUAL_AXIS_SELECT == X_AXIS) || (DUAL_AXIS_SELECT == Y_AXIS))
     #error "Dual axis currently supports X or Y axes only."
   #endif

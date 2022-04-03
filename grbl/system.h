@@ -135,6 +135,9 @@ typedef struct {
   #ifdef ENABLE_DUAL_AXIS
     uint8_t homing_axis_lock_dual;
   #endif
+  #ifdef ENABLE_A_AXIS
+    uint8_t homing_axis_lock_a;
+  #endif
   uint8_t f_override;          // Feed rate override value in percent
   uint8_t r_override;          // Rapids override value in percent
   uint8_t spindle_speed_ovr;   // Spindle speed value in percent

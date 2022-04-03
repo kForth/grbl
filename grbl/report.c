@@ -439,6 +439,9 @@ void report_build_info(char *line)
   #ifdef ENABLE_DUAL_AXIS
     serial_write('2');
   #endif
+  #ifdef ENABLE_A_AXIS
+    serial_write('4');
+  #endif
   // NOTE: Compiled values, like override increments/max/min values, may be added at some point later.
   serial_write(',');
   print_uint8_base10(BLOCK_BUFFER_SIZE-1);

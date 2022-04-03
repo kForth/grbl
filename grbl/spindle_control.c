@@ -37,15 +37,13 @@ void spindle_init()
     SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
-    #else
-      #ifndef ENABLE_DUAL_AXIS
-        SPINDLE_DIRECTION_DDR |= (1<<SPINDLE_DIRECTION_BIT); // Configure as output pin.
-      #endif
+    #elif !defined(ENABLE_DUAL_AXIS) && !defined(ENABLE_A_AXIS)
+      SPINDLE_DIRECTION_DDR |= (1<<SPINDLE_DIRECTION_BIT); // Configure as output pin.
     #endif
     pwm_gradient = SPINDLE_PWM_RANGE/(settings.rpm_max-settings.rpm_min);
   #else
     SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
-    #ifndef ENABLE_DUAL_AXIS
+    #if !defined(ENABLE_DUAL_AXIS) && !defined(ENABLE_A_AXIS)
       SPINDLE_DIRECTION_DDR |= (1<<SPINDLE_DIRECTION_BIT); // Configure as output pin.
     #endif
   #endif
@@ -66,7 +64,7 @@ uint8_t spindle_get_state()
       #endif
     #else
       if (SPINDLE_TCCRA_REGISTER & (1<<SPINDLE_COMB_BIT)) { // Check if PWM is enabled.
-        #ifdef ENABLE_DUAL_AXIS
+        #if defined(ENABLE_DUAL_AXIS) || defined(ENABLE_A_AXIS)
           return(SPINDLE_STATE_CW);
         #else
           if (SPINDLE_DIRECTION_PORT & (1<<SPINDLE_DIRECTION_BIT)) { return(SPINDLE_STATE_CCW); }
@@ -80,7 +78,7 @@ uint8_t spindle_get_state()
     #else
       if (bit_istrue(SPINDLE_ENABLE_PORT,(1<<SPINDLE_ENABLE_BIT))) {
     #endif
-      #ifdef ENABLE_DUAL_AXIS    
+      #if defined(ENABLE_DUAL_AXIS) || defined(ENABLE_A_AXIS)
         return(SPINDLE_STATE_CW);
       #else
         if (SPINDLE_DIRECTION_PORT & (1<<SPINDLE_DIRECTION_BIT)) { return(SPINDLE_STATE_CCW); }
@@ -239,7 +237,7 @@ void spindle_stop()
   
   } else {
     
-    #if !defined(USE_SPINDLE_DIR_AS_ENABLE_PIN) && !defined(ENABLE_DUAL_AXIS)
+    #if !defined(USE_SPINDLE_DIR_AS_ENABLE_PIN) && !defined(ENABLE_DUAL_AXIS) && !defined(ENABLE_A_AXIS)
       if (state == SPINDLE_ENABLE_CW) {
         SPINDLE_DIRECTION_PORT &= ~(1<<SPINDLE_DIRECTION_BIT);
       } else {

@@ -612,6 +612,10 @@
 #define RPM_LINE_A4  1.203413e-01  // Used N_PIECES = 4. A and B constants of line 4.
 #define RPM_LINE_B4  1.151360e+03
 
+
+// TODO
+#define ENABLE_A_AXIS
+
 /* --------------------------------------------------------------------------------------- 
   This optional dual axis feature is primarily for the homing cycle to locate two sides of 
   a dual-motor gantry independently, i.e. self-squaring. This requires an additional limit
