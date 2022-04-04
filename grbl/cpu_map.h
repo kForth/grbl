@@ -67,7 +67,7 @@
   #else
     #define Z_LIMIT_BIT    3  // Uno Digital Pin 11
   #endif
-  #if !defined(ENABLE_DUAL_AXIS)
+  #if !defined(ENABLE_DUAL_AXIS) && !defined(ENABLE_A_AXIS)
     #define LIMIT_MASK     ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)) // All limit bits
   #endif
   #define LIMIT_INT        PCIE0  // Pin change interrupt enable pin
@@ -151,7 +151,98 @@
     #define SPINDLE_PWM_PORT  PORTB
     #define SPINDLE_PWM_BIT   3    // Uno Digital Pin 11
 
-  #elif defined(ENABLE_A_AXIS)
+  // Dual axis feature requires an independent step pulse pin to operate. The independent direction pin is not 
+  // absolutely necessary but facilitates easy direction inverting with a Grbl $$ setting. These pins replace 
+  // the spindle direction and optional coolant mist pins.
+
+  #elif defined(ENABLE_DUAL_AXIS)
+   #if defined(DUAL_AXIS_CONFIG_PROTONEER_V3_51)
+    // NOTE: Step pulse and direction pins may be on any port and output pin.
+    #define STEP_DDR_DUAL       DDRC
+    #define STEP_PORT_DUAL      PORTC
+    #define DUAL_STEP_BIT       4  // Uno Analog Pin 4
+    #define STEP_MASK_DUAL      ((1<<DUAL_STEP_BIT))
+    #define DIRECTION_DDR_DUAL  DDRC
+    #define DIRECTION_PORT_DUAL PORTC
+    #define DUAL_DIRECTION_BIT  3  // Uno Analog Pin 3
+    #define DIRECTION_MASK_DUAL ((1<<DUAL_DIRECTION_BIT))
+
+    // NOTE: Dual axis limit is shared with the z-axis limit pin by default. Pin used must be on the same port
+    // as other limit pins.
+    #define DUAL_LIMIT_BIT    Z_LIMIT_BIT
+    #define LIMIT_MASK        ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)|(1<<DUAL_LIMIT_BIT))
+
+    // Define coolant enable output pins.
+    // NOTE: Coolant flood moved from A3 to A4. Coolant mist not supported with dual axis feature on Arduino Uno.
+    #define COOLANT_FLOOD_DDR   DDRB
+    #define COOLANT_FLOOD_PORT  PORTB
+    #define COOLANT_FLOOD_BIT   5  // Uno Digital Pin 13
+
+    // Define spindle enable output pin.
+    // NOTE: Spindle enable moved from D12 to A3 (old coolant flood enable pin). Spindle direction pin is removed.
+    #define SPINDLE_ENABLE_DDR    DDRB
+    #define SPINDLE_ENABLE_PORT   PORTB
+    #ifdef VARIABLE_SPINDLE
+      // NOTE: USE_SPINDLE_DIR_AS_ENABLE_PIN not supported with dual axis feature.
+      #define SPINDLE_ENABLE_BIT    3  // Uno Digital Pin 11
+    #else
+      #define SPINDLE_ENABLE_BIT    4  // Uno Digital Pin 12
+    #endif
+
+    // Variable spindle configuration below. Do not change unless you know what you are doing.
+    // NOTE: Only used when variable spindle is enabled.
+    #define SPINDLE_PWM_MAX_VALUE     255 // Don't change. 328p fast PWM mode fixes top value as 255.
+    #ifndef SPINDLE_PWM_MIN_VALUE
+      #define SPINDLE_PWM_MIN_VALUE   1   // Must be greater than zero.
+    #endif
+    #define SPINDLE_PWM_OFF_VALUE     0
+    #define SPINDLE_PWM_RANGE         (SPINDLE_PWM_MAX_VALUE-SPINDLE_PWM_MIN_VALUE)
+    #define SPINDLE_TCCRA_REGISTER    TCCR2A
+    #define SPINDLE_TCCRB_REGISTER    TCCR2B
+    #define SPINDLE_OCR_REGISTER      OCR2A
+    #define SPINDLE_COMB_BIT          COM2A1
+
+    // Prescaled, 8-bit Fast PWM mode.
+    #define SPINDLE_TCCRA_INIT_MASK   ((1<<WGM20) | (1<<WGM21))  // Configures fast PWM mode.
+    // #define SPINDLE_TCCRB_INIT_MASK   (1<<CS20)               // Disable prescaler -> 62.5kHz
+    // #define SPINDLE_TCCRB_INIT_MASK   (1<<CS21)               // 1/8 prescaler -> 7.8kHz (Used in v0.9)
+    // #define SPINDLE_TCCRB_INIT_MASK   ((1<<CS21) | (1<<CS20)) // 1/32 prescaler -> 1.96kHz
+    #define SPINDLE_TCCRB_INIT_MASK      (1<<CS22)               // 1/64 prescaler -> 0.98kHz (J-tech laser)
+
+    // NOTE: On the 328p, these must be the same as the SPINDLE_ENABLE settings.
+    #define SPINDLE_PWM_DDR   DDRB
+    #define SPINDLE_PWM_PORT  PORTB
+    #define SPINDLE_PWM_BIT   3    // Uno Digital Pin 11
+
+  // NOTE: Variable spindle not supported with this shield.
+  #elif defined(DUAL_AXIS_CONFIG_CNC_SHIELD_CLONE)
+    // NOTE: Step pulse and direction pins may be on any port and output pin.
+    #define STEP_DDR_DUAL       DDRB
+    #define STEP_PORT_DUAL      PORTB
+    #define DUAL_STEP_BIT       4  // Uno Digital Pin 12
+    #define STEP_MASK_DUAL      ((1<<DUAL_STEP_BIT))
+    #define DIRECTION_DDR_DUAL  DDRB
+    #define DIRECTION_PORT_DUAL PORTB
+    #define DUAL_DIRECTION_BIT  5  // Uno Digital Pin 13
+    #define DIRECTION_MASK_DUAL ((1<<DUAL_DIRECTION_BIT))
+
+    // NOTE: Dual axis limit is shared with the z-axis limit pin by default.
+    #define DUAL_LIMIT_BIT    Z_LIMIT_BIT
+    #define LIMIT_MASK        ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)|(1<<DUAL_LIMIT_BIT))
+
+    // Define coolant enable output pins.
+    // NOTE: Coolant flood moved from A3 to A4. Coolant mist not supported with dual axis feature on Arduino Uno.
+    #define COOLANT_FLOOD_DDR   DDRC
+    #define COOLANT_FLOOD_PORT  PORTC
+    #define COOLANT_FLOOD_BIT   4  // Uno Analog Pin 4
+
+    // Define spindle enable output pin.
+    // NOTE: Spindle enable moved from D12 to A3 (old coolant flood enable pin). Spindle direction pin is removed.
+    #define SPINDLE_ENABLE_DDR    DDRC
+    #define SPINDLE_ENABLE_PORT   PORTC
+    #define SPINDLE_ENABLE_BIT    3  // Uno Analog Pin 3
+  #endif
+#elif defined(ENABLE_A_AXIS)
     // #ifdef A_AXIS_CONFIG_PROTONEER_V3_51  // This is the only supported board
 
     // NOTE: Step pulse and direction pins may be on any port and output pin.
@@ -167,7 +258,7 @@
     // NOTE: A axis limit is shared with the z-axis limit pin by default. Pin used must be on the same port
     // as other limit pins.
     #define A_LIMIT_BIT    Z_LIMIT_BIT
-    #define LIMIT_MASK        ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT))
+    #define LIMIT_MASK     ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)|(1<<A_LIMIT_BIT))
 
     // Define coolant enable output pins.
     // NOTE: Coolant flood moved from A3 to A4. Coolant mist not supported with A axis feature on Arduino Uno.
@@ -211,101 +302,7 @@
     #define SPINDLE_PWM_PORT  PORTB
     #define SPINDLE_PWM_BIT   3    // Uno Digital Pin 11
 
-  #else
-    // Dual axis feature requires an independent step pulse pin to operate. The independent direction pin is not 
-    // absolutely necessary but facilitates easy direction inverting with a Grbl $$ setting. These pins replace 
-    // the spindle direction and optional coolant mist pins.
-
-    #ifdef DUAL_AXIS_CONFIG_PROTONEER_V3_51
-      // NOTE: Step pulse and direction pins may be on any port and output pin.
-      #define STEP_DDR_DUAL       DDRC
-      #define STEP_PORT_DUAL      PORTC
-      #define DUAL_STEP_BIT       4  // Uno Analog Pin 4
-      #define STEP_MASK_DUAL      ((1<<DUAL_STEP_BIT))
-      #define DIRECTION_DDR_DUAL  DDRC
-      #define DIRECTION_PORT_DUAL PORTC
-      #define DUAL_DIRECTION_BIT  3  // Uno Analog Pin 3
-      #define DIRECTION_MASK_DUAL ((1<<DUAL_DIRECTION_BIT))
-
-      // NOTE: Dual axis limit is shared with the z-axis limit pin by default. Pin used must be on the same port
-      // as other limit pins.
-      #define DUAL_LIMIT_BIT    Z_LIMIT_BIT
-      #define LIMIT_MASK        ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)|(1<<DUAL_LIMIT_BIT))
-
-      // Define coolant enable output pins.
-      // NOTE: Coolant flood moved from A3 to A4. Coolant mist not supported with dual axis feature on Arduino Uno.
-      #define COOLANT_FLOOD_DDR   DDRB
-      #define COOLANT_FLOOD_PORT  PORTB
-      #define COOLANT_FLOOD_BIT   5  // Uno Digital Pin 13
-
-      // Define spindle enable output pin.
-      // NOTE: Spindle enable moved from D12 to A3 (old coolant flood enable pin). Spindle direction pin is removed.
-      #define SPINDLE_ENABLE_DDR    DDRB
-      #define SPINDLE_ENABLE_PORT   PORTB
-      #ifdef VARIABLE_SPINDLE
-        // NOTE: USE_SPINDLE_DIR_AS_ENABLE_PIN not supported with dual axis feature.
-        #define SPINDLE_ENABLE_BIT    3  // Uno Digital Pin 11
-      #else
-        #define SPINDLE_ENABLE_BIT    4  // Uno Digital Pin 12
-      #endif
-
-      // Variable spindle configuration below. Do not change unless you know what you are doing.
-      // NOTE: Only used when variable spindle is enabled.
-      #define SPINDLE_PWM_MAX_VALUE     255 // Don't change. 328p fast PWM mode fixes top value as 255.
-      #ifndef SPINDLE_PWM_MIN_VALUE
-        #define SPINDLE_PWM_MIN_VALUE   1   // Must be greater than zero.
-      #endif
-      #define SPINDLE_PWM_OFF_VALUE     0
-      #define SPINDLE_PWM_RANGE         (SPINDLE_PWM_MAX_VALUE-SPINDLE_PWM_MIN_VALUE)
-      #define SPINDLE_TCCRA_REGISTER    TCCR2A
-      #define SPINDLE_TCCRB_REGISTER    TCCR2B
-      #define SPINDLE_OCR_REGISTER      OCR2A
-      #define SPINDLE_COMB_BIT          COM2A1
-
-      // Prescaled, 8-bit Fast PWM mode.
-      #define SPINDLE_TCCRA_INIT_MASK   ((1<<WGM20) | (1<<WGM21))  // Configures fast PWM mode.
-      // #define SPINDLE_TCCRB_INIT_MASK   (1<<CS20)               // Disable prescaler -> 62.5kHz
-      // #define SPINDLE_TCCRB_INIT_MASK   (1<<CS21)               // 1/8 prescaler -> 7.8kHz (Used in v0.9)
-      // #define SPINDLE_TCCRB_INIT_MASK   ((1<<CS21) | (1<<CS20)) // 1/32 prescaler -> 1.96kHz
-      #define SPINDLE_TCCRB_INIT_MASK      (1<<CS22)               // 1/64 prescaler -> 0.98kHz (J-tech laser)
-
-      // NOTE: On the 328p, these must be the same as the SPINDLE_ENABLE settings.
-      #define SPINDLE_PWM_DDR   DDRB
-      #define SPINDLE_PWM_PORT  PORTB
-      #define SPINDLE_PWM_BIT   3    // Uno Digital Pin 11
-    #endif
-
-    // NOTE: Variable spindle not supported with this shield.
-    #ifdef DUAL_AXIS_CONFIG_CNC_SHIELD_CLONE
-      // NOTE: Step pulse and direction pins may be on any port and output pin.
-      #define STEP_DDR_DUAL       DDRB
-      #define STEP_PORT_DUAL      PORTB
-      #define DUAL_STEP_BIT       4  // Uno Digital Pin 12
-      #define STEP_MASK_DUAL      ((1<<DUAL_STEP_BIT))
-      #define DIRECTION_DDR_DUAL  DDRB
-      #define DIRECTION_PORT_DUAL PORTB
-      #define DUAL_DIRECTION_BIT  5  // Uno Digital Pin 13
-      #define DIRECTION_MASK_DUAL ((1<<DUAL_DIRECTION_BIT))
-
-      // NOTE: Dual axis limit is shared with the z-axis limit pin by default.
-      #define DUAL_LIMIT_BIT    Z_LIMIT_BIT
-      #define LIMIT_MASK        ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)|(1<<DUAL_LIMIT_BIT))
-
-      // Define coolant enable output pins.
-      // NOTE: Coolant flood moved from A3 to A4. Coolant mist not supported with dual axis feature on Arduino Uno.
-      #define COOLANT_FLOOD_DDR   DDRC
-      #define COOLANT_FLOOD_PORT  PORTC
-      #define COOLANT_FLOOD_BIT   4  // Uno Analog Pin 4
-
-      // Define spindle enable output pin.
-      // NOTE: Spindle enable moved from D12 to A3 (old coolant flood enable pin). Spindle direction pin is removed.
-      #define SPINDLE_ENABLE_DDR    DDRC
-      #define SPINDLE_ENABLE_PORT   PORTC
-      #define SPINDLE_ENABLE_BIT    3  // Uno Analog Pin 3
-    #endif
-
   #endif
-
 #endif
 
 /*

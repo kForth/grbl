@@ -189,7 +189,12 @@ void limits_go_home(uint8_t cycle_mask)
   uint8_t idx;
   for (idx=0; idx<N_AXIS; idx++) {
     // Initialize step pin masks
-    step_pin[idx] = get_step_pin_mask(idx);
+    #ifndef ENABLE_A_AXIS
+      step_pin[idx] = get_step_pin_mask(idx);
+    #else
+      if(idx != A_AXIS) { step_pin[idx] = get_step_pin_mask(idx); }
+    #endif
+    
     #ifdef COREXY
       if ((idx==A_MOTOR)||(idx==B_MOTOR)) { step_pin[idx] = (get_step_pin_mask(X_AXIS)|get_step_pin_mask(Y_AXIS)); }
     #endif
@@ -202,6 +207,9 @@ void limits_go_home(uint8_t cycle_mask)
   }
   #ifdef ENABLE_DUAL_AXIS
     step_pin_dual = (1<<DUAL_STEP_BIT);
+  #endif
+  #ifdef ENABLE_A_AXIS
+    uint8_t step_pin_a = (1<<A_STEP_BIT);
   #endif
 
   // Set search mode with approach at seek rate to quickly engage the specified cycle_mask limit switches.
@@ -249,7 +257,12 @@ void limits_go_home(uint8_t cycle_mask)
           else { target[idx] = -max_travel; }
         }
         // Apply axislock to the step port pins active in this cycle.
-        axislock |= step_pin[idx];
+        #ifndef ENABLE_A_AXIS
+          axislock |= step_pin[idx];
+        #else
+          if (idx != A_AXIS) { axislock |= step_pin[idx]; }
+          else { sys.homing_axis_lock_a = step_pin_a; }
+        #endif
         #ifdef ENABLE_DUAL_AXIS
           if (idx == DUAL_AXIS_SELECT) { sys.homing_axis_lock_dual = step_pin_dual; }
         #endif
@@ -271,13 +284,22 @@ void limits_go_home(uint8_t cycle_mask)
         // Check limit state. Lock out cycle axes when they change.
         limit_state = limits_get_state();
         for (idx=0; idx<N_AXIS; idx++) {
-          if (axislock & step_pin[idx]) {
+          #ifndef ENABLE_A_AXIS
+            if (axislock & step_pin[idx]) {
+          #else
+            if ((idx != A_AXIS && (axislock & step_pin[idx])) || (idx == A_AXIS && sys.homing_axis_lock_a)) {
+          #endif
             if (limit_state & (1 << idx)) {
               #ifdef COREXY
                 if (idx==Z_AXIS) { axislock &= ~(step_pin[Z_AXIS]); }
                 else { axislock &= ~(step_pin[A_MOTOR]|step_pin[B_MOTOR]); }
               #else
-                axislock &= ~(step_pin[idx]);
+                #ifndef ENABLE_A_AXIS
+                  axislock &= ~(step_pin[idx]);
+                #else
+                  if (idx != A_AXIS) { axislock &= ~(step_pin[idx]); }
+                  else { sys.homing_axis_lock_a &= ~(step_pin_a); }
+                #endif
                 #ifdef ENABLE_DUAL_AXIS
                   if (idx == DUAL_AXIS_SELECT) { dual_axis_async_check |= DUAL_AXIS_CHECK_TRIGGER_1; }
                 #endif
@@ -341,6 +363,9 @@ void limits_go_home(uint8_t cycle_mask)
 
     #ifdef ENABLE_DUAL_AXIS
       } while ((STEP_MASK & axislock) || (sys.homing_axis_lock_dual));
+    #else
+    #ifdef ENABLE_A_AXIS
+      } while ((STEP_MASK & axislock) || (sys.homing_axis_lock_a));
     #else
       } while (STEP_MASK & axislock);
     #endif

@@ -589,6 +589,9 @@ void report_realtime_status()
           if (bit_istrue(lim_pin_state,bit(X_AXIS))) { serial_write('X'); }
           if (bit_istrue(lim_pin_state,bit(Y_AXIS))) { serial_write('Y'); }
           if (bit_istrue(lim_pin_state,bit(Z_AXIS))) { serial_write('Z'); }
+          #ifdef ENABLE_A_AXIS
+            if (bit_istrue(lim_pin_state,bit(A_LIMIT_BIT))) { serial_write('A'); }
+          #endif
         #endif
       }
       if (ctrl_pin_state) {

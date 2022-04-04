@@ -243,6 +243,9 @@ void st_wake_up()
 
   // Initialize stepper output bits to ensure first ISR call does not step.
   st.step_outbits = step_port_invert_mask;
+  #ifdef ENABLE_A_AXIS 
+    st.step_outbits_a = step_port_invert_mask_a;
+  #endif
 
   // Initialize step pulse timing from settings. Here to ensure updating after re-writing.
   #ifdef STEP_PULSE_DELAY
@@ -358,7 +361,6 @@ ISR(TIMER1_COMPA_vect)
       STEP_PORT_DUAL = (STEP_PORT_DUAL & ~STEP_MASK_DUAL) | st.step_outbits_dual;
     #endif
     #ifdef ENABLE_A_AXIS
-    //TODO
       STEP_PORT_A = (STEP_PORT_A & ~STEP_MASK_A) | st.step_outbits_a;
     #endif
   #endif
@@ -395,6 +397,9 @@ ISR(TIMER1_COMPA_vect)
 
         // Initialize Bresenham line and distance counters
         st.counter_x = st.counter_y = st.counter_z = (st.exec_block->step_event_count >> 1);
+        #ifdef ENABLE_A_AXIS
+          st.counter_a = (st.exec_block->step_event_count >> 1);
+        #endif
       }
       st.dir_outbits = st.exec_block->direction_bits ^ dir_port_invert_mask;
       #ifdef ENABLE_DUAL_AXIS
@@ -428,7 +433,6 @@ ISR(TIMER1_COMPA_vect)
       return; // Nothing to do but exit.
     }
   }
-
 
   // Check probing state.
   if (sys_probe_state == PROBE_ACTIVE) { probe_state_monitor(); }
@@ -490,7 +494,7 @@ ISR(TIMER1_COMPA_vect)
       st.counter_a += st.exec_block->steps[A_AXIS];
     #endif
     if (st.counter_a > st.exec_block->step_event_count) {
-      st.step_outbits |= (1<<A_STEP_BIT);
+      st.step_outbits_a |= (1<<A_STEP_BIT);
       st.counter_a -= st.exec_block->step_event_count;
       if (st.exec_block->direction_bits & (1<<A_DIRECTION_BIT)) { sys_position[A_AXIS]--; }
       else { sys_position[A_AXIS]++; }
@@ -524,7 +528,6 @@ ISR(TIMER1_COMPA_vect)
   #endif
   busy = false;
 }
-
 
 /* The Stepper Port Reset Interrupt: Timer0 OVF interrupt handles the falling edge of the step
    pulse. This should always trigger before the next Timer1 COMPA interrupt and independently
@@ -783,13 +786,7 @@ void st_prep_buffer()
           }  else { st_prep_block->direction_bits_dual = 0; }
         #endif
         #ifdef ENABLE_A_AXIS
-          #if (A_AXIS_SELECT == X_AXIS)
-            if (st_prep_block->direction_bits & (1<<X_DIRECTION_BIT)) { 
-          #elif (A_AXIS_SELECT == Y_AXIS)
-            if (st_prep_block->direction_bits & (1<<Y_DIRECTION_BIT)) { 
-          #endif
-            st_prep_block->direction_bits_a = (1<<A_DIRECTION_BIT); 
-          }  else { st_prep_block->direction_bits_a = 0; }
+          st_prep_block->direction_bits_a = (1<<A_DIRECTION_BIT);
         #endif
         uint8_t idx;
         #ifndef ADAPTIVE_MULTI_AXIS_STEP_SMOOTHING

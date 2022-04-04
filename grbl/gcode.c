@@ -296,6 +296,9 @@ uint8_t gc_execute_line(char *line)
            legal g-code words and stores their value. Error-checking is performed later since some
            words (I,J,K,L,P,R) have multiple connotations and/or depend on the issued commands. */
         switch(letter){
+          #ifdef ENABLE_A_AXIS
+            case 'A': word_bit = WORD_A; gc_block.values.xyz[A_AXIS] = value; axis_words |= (1<<A_AXIS); break;
+          #endif
           // case 'B': // Not supported
           // case 'C': // Not supported
           // case 'D': // Not supported
@@ -318,9 +321,6 @@ uint8_t gc_execute_line(char *line)
           case 'X': word_bit = WORD_X; gc_block.values.xyz[X_AXIS] = value; axis_words |= (1<<X_AXIS); break;
           case 'Y': word_bit = WORD_Y; gc_block.values.xyz[Y_AXIS] = value; axis_words |= (1<<Y_AXIS); break;
           case 'Z': word_bit = WORD_Z; gc_block.values.xyz[Z_AXIS] = value; axis_words |= (1<<Z_AXIS); break;
-          #ifdef ENABLE_A_AXIS
-            case 'A': word_bit = WORD_A; gc_block.values.xyz[A_AXIS] = value; axis_words |= (1<<A_AXIS); break;
-          #endif
           default: FAIL(STATUS_GCODE_UNSUPPORTED_COMMAND);
         }
 
@@ -546,9 +546,6 @@ uint8_t gc_execute_line(char *line)
 
       // Pre-calculate the coordinate data changes.
       for (idx=0; idx<N_AXIS; idx++) { // Axes indices are consistent, so loop may be used.
-        #ifdef ENABLE_A_AXIS
-          if(idx==A_AXIS) continue; // A Axis is not supported for IJK
-        #endif
         // Update axes defined only in block. Always in machine coordinates. Can change non-active system.
         if (bit_istrue(axis_words,bit(idx)) ) {
           if (gc_block.values.l == 20) {
@@ -838,9 +835,10 @@ uint8_t gc_execute_line(char *line)
     bit_false(value_words,(bit(WORD_N)|bit(WORD_F)|bit(WORD_S)|bit(WORD_T))); // Remove single-meaning value words.
   }
   if (axis_command) { 
-    bit_false(value_words,(bit(WORD_X)|bit(WORD_Y)|bit(WORD_Z)));
     #ifdef ENABLE_A_AXIS
-      bit_false(value_words,bit(WORD_A));
+      bit_false(value_words,(bit(WORD_X)|bit(WORD_Y)|bit(WORD_Z)|bit(WORD_A)));
+    #else
+      bit_false(value_words,(bit(WORD_X)|bit(WORD_Y)|bit(WORD_Z)));
     #endif
   } // Remove axis words.
   if (value_words) { FAIL(STATUS_GCODE_UNUSED_WORDS); } // [Unused words]
