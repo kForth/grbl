@@ -363,8 +363,7 @@ void limits_go_home(uint8_t cycle_mask)
 
     #ifdef ENABLE_DUAL_AXIS
       } while ((STEP_MASK & axislock) || (sys.homing_axis_lock_dual));
-    #else
-    #ifdef ENABLE_A_AXIS
+    #elif defined ENABLE_A_AXIS
       } while ((STEP_MASK & axislock) || (sys.homing_axis_lock_a));
     #else
       } while (STEP_MASK & axislock);
