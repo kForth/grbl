@@ -105,6 +105,7 @@
 #define HOMING_CYCLE_0 (1<<Z_AXIS)                // REQUIRED: First move Z to clear workspace.
 #define HOMING_CYCLE_1 ((1<<X_AXIS)|(1<<Y_AXIS))  // OPTIONAL: Then move X,Y at the same time.
 // #define HOMING_CYCLE_2                         // OPTIONAL: Uncomment and add axes mask to enable
+// #define HOMING_CYCLE_3                         // OPTIONAL: Uncomment and add axes mask to enable
 
 // NOTE: The following are two examples to setup homing for 2-axis machines.
 // #define HOMING_CYCLE_0 ((1<<X_AXIS)|(1<<Y_AXIS))  // NOT COMPATIBLE WITH COREXY: Homes both X-Y in one cycle. 
@@ -613,9 +614,6 @@
 #define RPM_LINE_B4  1.151360e+03
 
 
-// TODO
-#define ENABLE_A_AXIS
-
 /* --------------------------------------------------------------------------------------- 
   This optional dual axis feature is primarily for the homing cycle to locate two sides of 
   a dual-motor gantry independently, i.e. self-squaring. This requires an additional limit
@@ -677,6 +675,40 @@
 // on pins D9/D10 (as [X1,Z]/[X2,Y] or [X,Y2]/[Y1,Z]), home each axis independently, and 
 // updating lots of code to ensure everything is running correctly.
 // #define DUAL_AXIS_CONFIG_CNC_SHIELD_CLONE  // Uncomment to select. Comment other configs.
+
+
+/* ---------------------------------------------------------------------------------------
+  This optional A-Axis feature allows control of an independant fourth axis on some arduino setups.
+
+  For Grbl on the Arduino Uno, the a-axis limit switch must to be shared with and 
+  wired with z-axis limit pin due to the lack of available pins. The homing cycle must home
+  the z-axis and a-axis in different cycles, which is already the default config.
+*/
+// NOTE: This feature requires more bytes of flash. Certain configurations can
+// run out of flash to fit on an Arduino 328p/Uno. Variable spindle/laser mode
+// IS supported, but only for one config option. Core XY, spindle direction
+// pin, and M7 mist coolant are disabled/not supported.
+#define ENABLE_A_AXIS
+
+// A-Axis pin configuration currently supports two shields. Uncomment the shield you want,
+// and comment out the other one(s).
+// NOTE: Protoneer CNC Shield v3.51 has A.STP and A.DIR wired to pins A4 and A3 respectively.
+// The variable spindle (i.e. laser mode) build option works and may be enabled or disabled.
+// Coolant pin A3 is moved to D13, replacing spindle direction.
+#define A_AXIS_CONFIG_PROTONEER_V3_51    // Uncomment to select. Comment other configs.
+
+// NOTE: Arduino CNC Shield Clone (Originally Protoneer v3.0) has A.STP and A.DIR wired to 
+// D12 and D13, respectively. With the limit pins and stepper enable pin on this same port,
+// the spindle enable pin had to be moved and spindle direction pin deleted. The spindle
+// enable pin now resides on A3, replacing coolant enable. Coolant enable is bumped over to
+// pin A4. Spindle enable is used far more and this pin setup helps facilitate users to 
+// integrate this feature without arguably too much work. 
+// Variable spindle (i.e. laser mode) does NOT work with this shield as configured. While
+// variable spindle technically can work with this shield, it requires too many changes for
+// most user setups to accomodate. It would best be implemented by sharing all limit switches
+// on pins D9/D10 (as [X1,Z]/[X2,Y] or [X,Y2]/[Y1,Z]), home each axis independently, and 
+// updating lots of code to ensure everything is running correctly.
+// #define A_AXIS_CONFIG_CNC_SHIELD_CLONE  // Uncomment to select. Comment other configs.
 
 
 /* ---------------------------------------------------------------------------------------
